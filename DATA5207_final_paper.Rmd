@@ -1,0 +1,429 @@
+---
+title: "Final Project Report: Analyzing the Impact of Sociocultural, Economic, and Demographic Factors on Gun Control Attitudes in the United States"
+author: "490236424"
+subtitle: "DATA5207: Data Analysis in the Social Sciences"
+date: "`r format(Sys.Date(), '%B %d, %Y')`" # adds current date in "Month DD, YYYY" format
+output:
+  pdf_document:
+    toc: true    # Table of contents: true for visibility
+    toc_depth: 3 # Depth of sections to include in TOC
+    number_sections: true # Section numbering
+    latex_engine: xelatex
+  html_document:
+    toc: true
+    toc_float: true
+    df_print: paged
+header-includes:
+  - \usepackage{booktabs} # for better table formatting
+  - \usepackage{caption}
+  - \captionsetup[figure]{font=scriptsize, labelfont=bf}
+  - \usepackage{amsmath} # for advanced math formatting
+  - \usepackage{float}   # Improved interface for floating objects
+  
+bibliography: references.bib
+csl: ieee.csl
+mainfont: "Avenir Book"
+monofont: "Courier New"
+urlcolor: blue
+geometry: "left=3cm,right=3cm,top=2cm,bottom=2cm" # Document margins
+fontsize: 11pt
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+
+library(tidyverse)
+library(scales)
+library(haven)
+library(foreign)
+library(arm)
+library(ggplot2)
+library(corrplot)
+library(knitr)
+library(dplyr)
+library(MASS)
+library(gt)
+library(car)
+library(gridExtra)
+library(ggfortify)
+library(kableExtra)
+```
+
+```{r data_prep, include = FALSE}
+GSS7216_R3 <- read_sav("~/Documents/USYD/2024S1/DATA5207/project/Data/Q2 What factors explain support for gun control in the United States/GSS7216_R3.sav")
+```
+\newpage
+# Introduction 
+
+The ongoing debate over gun control in the United States is as multifaceted as it is polarized, shaped by deep-rooted cultural, socio-economic, and political factors. At the heart of this discourse is the public opinion, which plays a crucial role in guiding legislative actions and policy formulations @spitzer2020politics. This study delves into the complex landscape of factors influencing U.S. public opinions on gun control, striving to uncover the underlying dynamics that sway societal attitudes towards this contentious issue.
+
+## Research Question
+This research seeks to answer the question: What are the key sociocultural, economic, and demographic factors that influence public opinion on gun control in the United States?
+
+## Research Aim and Motivation
+The primary aim of this study is to analyze how various factors such as political orientation, demographic characteristics, region wealth level and upbringing and cultural beliefs shape public attitudes towards gun control. By leveraging data from the General Social Surveys (GSS) spanning from 1972 to 2016, this research intends to provide a comprehensive understanding of the predictors influencing opinions on gun control measures.
+
+The motivation for this research stems from the understanding public sentiment on gun control, which is essential for crafting policies that are both effective and reflective of public will. Despite extensive discussions and numerous studies, there remains a significant gap in understanding the comprehensive effects of intertwined factors such as political affiliations, and regional cultural attitudes @uphoff2000understanding, @morrall2018science. Addressing these gaps will enrich the academic discourse and inform a better decision-making process.
+
+## Hypothesis
+This study hypothesizes that attitudes towards gun control are shaped by a complex interplay of sociocultural, economic, and demographic factors, rather than solely by individual political beliefs. This hypothesis seeks to unpack the nuanced influences that contribute to public opinion on gun control in the United States, positing that:
+
+* Political Affiliation: Political orientation is expected to significantly influence attitudes towards gun control, with individuals leaning towards conservative ideologies likely to favor less stringent gun control measures, while those with liberal orientations are predicted to support stricter regulations.
+
+* Demographic Influence: Demographic variables such as age, income, race, and education are anticipated to influence support for gun control. Specifically, it is expected that younger, urban, and more educated individuals, and those with higher incomes, will show greater support for gun control measures.
+
+* Cultural and Regional Differences: The study predicts that personal upbringing and cultural norms together with regional identities and wealth will influence gun control attitudes. For example, poor or country regions with prevalent hunting cultures gun ownership may be more resistant to restrictive gun measures.
+
+The study will employ rigorous statistical analysis of survey data to examine these influences, aiming to provide a detailed understanding of the factors that shape public attitudes towards gun control.
+
+
+\vspace{6mm}
+\newpage
+# Literature and theory
+## Political and Demographic Influences on Gun Control Attitudes
+Studies such as @schaeffer_2023 and @paul2023united support the hypothesis that political orientation significantly influences gun control attitudes. Both @schaeffer_2023 and @ndikum2018perceptions showed that Republicans are more likely to own guns and favor less restrictive gun laws compared to Democrats. Research by Jared M. Adams @ac13cf81-9e69-3d63-8702-a1a929bbbb84 and @adams2017predicting also indicates that conservative-leaning individuals generally favor less stringent control.
+
+Demographic factors such as race, ethnicity, age, and urban versus rural residency influence perceptions of gun violence and support for gun control. Multiple studies @schaeffer_2023, @kleck1996crime, and @adams2017predicting confirm that younger, urban, higher-income, and better-educated demographics tend to support stricter gun control measures. Conversely, rural areas exhibit higher gun ownership rates and more support for gun rights, aligning with the hypothesis about regional cultural attitudes. The study by Robin M. Wolpert and James G. Gimpel @ac13cf81-9e69-3d63-8702-a1a929bbbb84 further suggests that older individuals and women are more supportive of gun control measures.
+
+However, Jared M. Adams @adams2017predicting partially supports the hypothesis that younger generations and minorities are less likely to own guns, while higher income levels and Southern residency are associated with higher gun ownership.
+
+Gary Kleck's research @kleck1996crime reveals that Jews are more likely to support gun permits, while Protestants' support for gun control is not significant when other factors are controlled. African Americans are more likely to support gun permits, even when controlling for lower levels of gun ownership.
+
+## Cultural and Safety Perceptions Influencing Gun Attitudes
+Charles M. Ndikum @ndikum2018perceptions suggests that regional and community-specific factors influence attitudes toward gun control, highlighting the importance of community-led solutions tailored to the specific cultural and socioeconomic context. Gary Kleck @kleck1996crime suggests that the cultural conflict perspective, viewing laws as instruments of power used by conflicting social groups, better explains support for gun control. Support is related to membership in cultural groups with opposing views on gun ownership.
+
+Dan M. Kahan @vegter2022gun posits that individuals' cultural values significantly influence their perceptions of gun-related risks. Hierarchical and individualistic individuals are more likely to perceive guns as protective and support gun rights, rejecting the idea that guns pose significant risks. Egalitarian and communitarian individuals are more likely to see guns as dangerous and support stricter gun control measures.
+
+## Impact of Personal Experience and Crime on Gun Control Attitudes
+Charles M. Ndikum @ndikum2018perceptions strongly supports the hypothesis that personal experiences with gun violence profoundly affect attitudes toward gun control, with victims often advocating for stricter measures.
+
+Conversely, Gary Kleck's research @kleck1996crime indicates that personal crime experiences and fear of crime are not significant predictors of support for gun control compared to cultural conflict. This suggests that other factors play a more substantial role, highlighting the complex interplay beyond personal experiences.
+
+\newpage
+# Data and methodology 
+
+## Data Source and Collection
+
+This study utilizes data from the General Social Surveys (GSS) administered by NORC at the University of Chicago from 1972 to 2016 @norc_gss. Known for its robust sampling techniques and comprehensive coverage of American opinions, the GSS data enables a detailed examination of changes in attitudes towards gun control across decades.
+
+## Variable Selection and Theoretical Framework
+The analysis focuses on:
+
+* *Dependent Variable:* Attitudes towards gun control, measured by the "GUNLAW" variable, which indicates preferences for permit requirements for gun ownership.
+
+* *Independent Variables:* These include political affiliation (PARTYID), demographic factors (AGE, SEX, CONRINC, EDUC, RACE), and regional influences (RES16, REGION), as these variables are central to understanding how various factors shape gun control opinions.
+
+## Addressing Biases and Methodological Considerations
+To counter potential biases such as non-response and sampling errors, the study employs survey weights to adjust the representation within the dataset @krenzke2006identifying. Socioeconomic factors such as upbringing culture and region wealth levels are also considered as potential confounders in the analysis.
+
+## Data Handling and Transformation
+### Null Value Imputation and Removal
+
+*Minor Missing Values Removal*: Missing data in variables like PARTYID, AGE, SEX, EDUC, RES16, and REGION were minimal and removed to maintain dataset integrity. This approach preserves the majority of the data, avoiding significant biases that might arise from imputation.
+
+*Imputation for Extensive Missing Data*: For CONRINC, which exhibited substantial missingness, median imputation was employed rather than mean imputation to avoid the effects of outliers and skewed data distributions. This method maintains the distribution's central tendency, ensuring a more accurate representation of typical income levels.
+
+*Handling Missing Data in Dependent Variable*: Missing values in the dependent variable, GUNLAW, were removed rather than imputed to prevent potential biases that could compromise the analysis's validity. 
+
+### Data Normalization
+Continuous variables AGE, CONRINC, and EDUC are normalized to scale the data between 0 and 1. This normalization helps prevent variables with larger scales from dominating the model, ensuring each variable contributes equally to the logistic regression analysis.
+
+### Variable Recoding
+#### Binary Recoding of GUNLAW
+The dependent variable is recoded to a binary format to fit the logistic regression model requirements. FAVOR is coded as 1 and OPPOSE as 0, simplifying the model’s interpretation by directly associating effects with support or opposition to gun laws.
+
+#### Factor Level Recoding
+Dropping unused factor levels reduces model complexity and avoids fitting data with sparse categories, enhancing model performance and stability. 
+
+The recoding of the PARTYID variable from categorical labels to an ordered numeric scale involves mapping each political affiliation category to a unique integer that reflects its position on a continuum from strong Republican to strong Democrat."STRONG REPUBLICAN" is assigned a value of 0, representing the most conservative end of the spectrum. This continues with "IND,NEAR REP", "INDEPENDENT", "IND,NEAR DEM", "NOT STR DEMOCRAT", each receiving progressively higher values. "STRONG DEMOCRAT" receives the highest value on the scale, 6, representing the most liberal end of the spectrum. 
+
+Recoding RES16, which indicates the type of area respondents grew up in at age 16, into simplified categories—Country, Town, and City—facilitates analysis by grouping similar environments. This categorization reflects literature suggesting that urbanization levels influence societal attitudes and behaviors, including views on gun control.
+
+Similarly, to control how economic conditions in different regions may affect residents' attitudes, recoding REGION into economic categories such as High Wealth, Moderate to High Wealth, Moderate Wealth, and Lower Wealth aligns with the assumption that socioeconomic status impacts public opinions on policy issues. The recoding rule follows Joel Suss's US spatial wealth analysis @suss2024geowealth.
+
+
+### Outliers
+In this dataset, outliers were identified in the Income and Education variables. To address this, outliers were defined as points falling beyond 1.5 times the interquartile range (IQR), a widely accepted statistical threshold.
+
+
+### Analytical Techniques
+Logistic regression was chosen as the primary analytical technique, appropriate for the binary nature of the dependent variable (attitudes towards gun control). This method allows for the examination of effects from multiple independent variables simultaneously while controlling for potential confounders. However, the potential changes in societal attitudes not captured between survey years. Detail of the implementation is shown in the next section.
+
+
+\newpage
+# Results
+## Data Preperation
+```{r data_conversion, warning=FALSE, message=FALSE, include=FALSE}
+# Viz for SEX variable
+vars <- list("PARTYID", "AGE", "SEX", "CONRINC", "EDUC", "RACE", "RES16", "REGION", "GUNLAW")
+# Check the structure of the dataset
+data <- GSS7216_R3 %>% dplyr::select("PARTYID", "AGE", "SEX", "CONRINC", "EDUC", "RACE", "RES16", "REGION", "GUNLAW")
+
+library(haven)  # For dealing with SPSS, Stata, and SAS files
+
+# Converting labeled variables to factors or numeric
+data$PARTYID <- as_factor(data$PARTYID)
+data$AGE <- as.numeric(as.character(data$AGE))
+data$SEX <- as_factor(data$SEX)
+data$CONRINC <- as.numeric(as.character(data$CONRINC))
+data$EDUC <- as.numeric(as.character(data$EDUC))
+data$RACE <- as_factor(data$RACE)
+data$RES16 <- as_factor(data$RES16)
+data$REGION <- as_factor(data$REGION)
+data$GUNLAW <- as_factor(data$GUNLAW)
+# Summary to check for anomalies
+
+#summary(data)
+```
+```{r outlier cleaning, warning=FALSE, echo=FALSE, message=FALSE}
+# Names of columns to check for outliers
+columns <- c("AGE", "CONRINC", "EDUC")
+
+# Function to remove outliers for a column
+remove_outliers <- function(data, column) {
+  Q1 <- quantile(data[[column]], 0.25, na.rm = TRUE)
+  Q3 <- quantile(data[[column]], 0.75, na.rm = TRUE)
+  IQR <- Q3 - Q1
+  lower_bound <- Q1 - 1.5 * IQR
+  upper_bound <- Q3 + 1.5 * IQR
+  
+  # Filter to remove outliers
+  filter <- data[[column]] >= lower_bound & data[[column]] <= upper_bound
+  return(data[filter, ])
+}
+
+# Apply to each column
+for (column in columns) {
+  clean_data <- remove_outliers(data, column)
+}
+
+```
+
+```{r remove NAs, warning=FALSE, echo=FALSE, message=FALSE}
+# Remove cases with NAs in critical variables
+clean_data <- clean_data[!is.na(clean_data$GUNLAW) & !is.na(clean_data$AGE) & 
+                         !is.na(clean_data$SEX) & !is.na(clean_data$EDUC) & 
+                         !is.na(clean_data$RES16) & !is.na(clean_data$REGION) &
+                         !is.na(clean_data$PARTYID),]
+
+# Impute CONRINC with median
+median_conrinc <- median(clean_data$CONRINC, na.rm = TRUE)
+clean_data$CONRINC[is.na(clean_data$CONRINC)] <- median_conrinc
+
+```
+
+```{r recoding variables, warning=FALSE, echo=FALSE, message=FALSE, fig.align='center', fig.width=6, fig.height=3}
+
+# Drop unused factor levels
+clean_data$GUNLAW <- droplevels(clean_data$GUNLAW)
+# Recode 'GUNLAW' into a binary format where 1 represents 'FAVOR' and 0 represents 'OPPOSE'
+clean_data$GUNLAW_BINARY <- ifelse(clean_data$GUNLAW == "FAVOR", 1, 0)
+clean_data$PARTYID <- droplevels(clean_data$PARTYID)
+clean_data$SEX <- droplevels(clean_data$SEX)
+clean_data$RACE <- droplevels(clean_data$RACE)
+clean_data$RES16 <- droplevels(clean_data$RES16)
+clean_data$REGION <- droplevels(clean_data$REGION)
+
+# Normalize a variable
+clean_data$AGE_NORM <- (clean_data$AGE - min(clean_data$AGE)) / (max(clean_data$AGE) - min(clean_data$AGE))
+clean_data$CONRINC_NORM <- (clean_data$CONRINC - min(clean_data$CONRINC)) / (max(clean_data$CONRINC) - min(clean_data$CONRINC))
+clean_data$EDUC_NORM <- (clean_data$EDUC - min(clean_data$EDUC)) / (max(clean_data$EDUC) - min(clean_data$EDUC))
+
+# Recode RES16
+clean_data <- clean_data %>%
+  mutate(GROW_UP_IN_ = case_when(
+    RES16 %in% c("COUNTRY,NONFARM", "FARM") ~ "Country",
+    RES16 %in% c("TOWN LT 50000", "50000 TO 250000") ~ "Town",
+    RES16 %in% c("BIG-CITY SUBURB", "CITY GT 250000") ~ "City",
+    TRUE ~ as.character(RES16)  # Keeps original values for any other cases
+  ))
+clean_data$GROW_UP_IN_ <- as_factor(clean_data$GROW_UP_IN_)
+
+clean_data <- clean_data %>%
+  mutate(SURVEY_REGION_WEALTH_ = case_when(
+    REGION %in% c("NEW ENGLAND", "MIDDLE ATLANTIC", "PACIFIC") ~ "High Wealth",
+    REGION %in% c("E. NOR. CENTRAL", "W. NOR. CENTRAL", "MOUNTAIN") ~ "Moderate to High Wealth",
+    REGION %in% c("SOUTH ATLANTIC", "W. SOU. CENTRAL") ~ "Moderate Wealth",
+    REGION %in% c("E. SOU. CENTRAL") ~ "Lower Wealth",
+    TRUE ~ as.character(REGION)  # Keeps original values for any other cases
+  ))
+clean_data$SURVEY_REGION_WEALTH_ <- as_factor(clean_data$SURVEY_REGION_WEALTH_)
+
+party_levels <- c("STRONG REPUBLICAN", "NOT STR REPUBLICAN", "IND,NEAR REP", "INDEPENDENT",
+                  "IND,NEAR DEM", "NOT STR DEMOCRAT", "STRONG DEMOCRAT")
+clean_data$Party_affiliation_level <- factor(clean_data$PARTYID, levels = party_levels, ordered = TRUE)
+clean_data$Party_affiliation_level <- as.integer(clean_data$Party_affiliation_level) - 1  # Convert to 0-6 scale
+
+```
+### Outlier Imputation and Removal
+
+```{r boxplot, warning=FALSE, echo=FALSE, message=FALSE, fig.align='center', fig.width=8, fig.height=3}
+# Set up the plotting area for a 3x3 grid of plots
+par(mfrow = c(2, 3), mar = c(4, 4, 2, 1))
+# Boxplot before removal
+boxplot(data$CONRINC, main="Boxplot of Income Before Clean", ylab="USD")
+
+boxplot(data$AGE, main="Boxplot of Age Before Clean", ylab="Age")
+
+boxplot(data$EDUC, main="Boxplot of Education Before Clean", ylab="EDUC")
+
+# Boxplot before removal
+boxplot(clean_data$CONRINC, main="Boxplot of Income After Clean", ylab="USD")
+
+boxplot(clean_data$AGE, main="Boxplot of Age After Clean", ylab="Age")
+
+boxplot(clean_data$EDUC, main="Boxplot of Education After Clean", ylab="EDUC")
+
+par(mfrow = c(1, 1))
+```
+The post-cleaning boxplots illustrate the impact of this cleaning process. For Education, the revised boxplot shows a narrower interquartile range, indicating a more accurate representation of the typical respondent's education level, free from the distortion of extreme values. Conversely, the Income data, despite the presence of high outliers, was not adjusted by this method, suggesting these values are unlikely to significantly influence the analysis. The Age data demonstrated no outliers, reinforcing the consistency of this demographic variable across the dataset.
+
+
+### Variable Distribution
+```{r all plot, warning=FALSE, echo=FALSE, message=FALSE, fig.align='center', fig.width=10, fig.height=5}
+# Set up the plotting area for a 3x3 grid of plots
+par(mfrow = c(3, 3), mar = c(4, 4, 2, 1))
+# Histogram for GUNLAW
+attitude_table <- table(clean_data$GUNLAW_BINARY)
+barplot(attitude_table, main="Attitudes to Stricter Gun Law", xlab="Attitude")
+
+# Histogram for Age
+hist(clean_data$AGE_NORM, main="Normalized Age", xlab="AGE_NORM")
+
+# Viz for SEX variable
+sex_table <- table(clean_data$SEX)
+barplot(sex_table, main="Distribution of Gender", xlab="Gender")
+
+# Viz for RACE variable
+race_table <- table(clean_data$RACE)
+barplot(race_table, main="Distribution of Race", xlab="Race")
+
+# Boxplot for Income
+boxplot(clean_data$CONRINC_NORM, main="Normalized Income", ylab="Constant USD")
+
+# Bar plot for Education
+barplot(table(clean_data$EDUC_NORM), main="Normalized Education Level", xlab="EDUC_NORM")
+
+# Viz for Political Affiliation
+party_table <- table(clean_data$PARTYID)
+barplot(party_table, main="Political Affiliation", xlab="Party")
+
+# Viz for REGION
+region_table <- table(clean_data$SURVEY_REGION_WEALTH_)
+barplot(region_table, main="Wealth Level of Survey Region", xlab="Wealth Level")
+
+# Viz for REGION
+red_table <- table(clean_data$GROW_UP_IN_)
+barplot(red_table, main="Region of Residence at 16", xlab="Type")
+
+
+# Reset to default plotting layout
+par(mfrow = c(1, 1))
+
+```
+*Race and Gender*: The majority of respondents are white, which may skew the overall attitudes captured in the survey. Gender distribution is balanced, suggesting that both male and female perspectives are fairly represented.
+
+*Age and Income Normalization:* The age distribution is fairly even but skewed towards younger and middle-aged adults, indicating potential generational differences in attitudes. Income normalization reveals outliers, suggesting that economic security may influence views on gun control.
+
+*Education:* A significant portion of respondents have completed at least high school, indicating that many are likely to engage in policy discussions about gun control.
+
+*Political Affiliation:* There is strong representation from across the political spectrum, suggesting that political ideology significantly shapes opinions on gun control, with Republicans typically favoring gun rights and Democrats favoring gun control.
+
+*Wealth Level of Survey Region:* Respondents from high and moderate to high wealth regions are almost equally likely to participate, indicating that economic stability might affect attitudes towards gun control.
+
+*Region of Residence at Age 16:* Urban residents are more likely to favor stricter controls due to higher crime rates, while rural residents might oppose stringent controls due to cultural norms of gun ownership.
+
+
+## Data Modelling
+### Model Summary and Coefficients
+
+The analysis of gun control attitudes supports the premise that individual and cultural factors substantially influence opinions on gun legislation. 
+
+```{r data modelling, echo=FALSE, warning=FALSE, message=FALSE}
+# Assuming that you have checked and all factor variables have more than one level
+model <- glm(GUNLAW_BINARY ~ Party_affiliation_level + AGE_NORM + SEX + CONRINC_NORM + EDUC_NORM + RACE + GROW_UP_IN_ + SURVEY_REGION_WEALTH_,
+             family = binomial(link = "logit"), data = clean_data)
+
+# Create a tidy summary of the model
+model_summary <- broom::tidy(model)
+
+model_summary <- kable(model_summary, format = "latex", digits = 2, align = 'c', caption = "Model Summary") %>%
+  kable_styling(latex_options = "hold_position")
+model_summary
+```
+
+#### Political Affiliation
+The coefficient for political affiliation is positive and highly significant, confirming the expectation that individuals with a Democratic lean are more likely to support stricter gun laws, consistent with studies by Schaeffer @schaeffer_2023 and Paul @paul2023united indicating that political ideology is a strong predictor of gun control attitudes.
+
+#### Age and Gender
+Reflecting on Adams' @adams2017predicting findings, the positive coefficients for AGE_NORM and SEXFEMALE in the model suggest older individuals and females are more inclined to support gun control. This aligns with broader societal concerns about safety and security, which tend to be more pronounced in these groups.
+
+#### Income and Education
+The slightly negative coefficient, although not statistically significant, suggests that higher income might correlate with a lower likelihood of supporting stricter gun laws, which could be influenced by personal security measures available to higher income individuals. This contradicts some expectations potentially due to the control over regional wealth as a confounding factor.
+
+Higher education levels are significantly associated with supporting stricter gun laws. As noted in Adams’ and Wolpert's research @ac13cf81-9e69-3d63-8702-a1a929bbbb84, @adams2017predicting that more educated individuals are often more receptive to regulatory measures for social issues.
+
+#### Race and Ethnicity
+The analysis showed that being Black or of another minority race significantly increases the likelihood of supporting gun control, a finding that resonates with Kleck's @kleck1996crime research on demographic sensitivities to gun violence. This suggests that racial and ethnic minorities, who might have disparate experiences with violence or systemic discrimination, see gun control as a means to enhance community safety.
+
+#### Regional and Economic Backgrounds
+The model illuminated how upbringing in different socioeconomic environments impacts gun control attitudes. Those raised in rural areas showed lesser support for strict laws, echoing cultural norms of gun ownership prevalent in these regions, as outlined by Ndikum @ndikum2018perceptions. In contrast, respondents from higher wealth regions were more supportive of stricter laws, possibly reflecting different experiences with crime and law enforcement.
+
+
+
+### Model Performance Diagnostics
+
+#### Variance Inflation Factor (VIF)
+
+```{r vif, echo=FALSE, message=FALSE, warning=FALSE}
+vif_table <- vif(model)
+kable(vif_table, format = "latex", digits = 2, align = 'c', caption = "VIF Analysis") %>%
+  kable_styling(latex_options = "hold_position")
+```
+The VIF values are well below the typical threshold of concern, suggesting reliable model estimates and low multicollinearity among predictors. Thus, dependent GUNLAW variable do not unduly influence each other.
+
+#### Residual Plots
+
+```{r model plot, echo=FALSE, warning=FALSE, message=FALSE, fig.align='center', fig.width=8, fig.height=4}
+
+# Diagnostic plots
+par(mfrow = c(2, 2), mar = c(4, 4, 2, 1))
+plot(model, which = 1)
+plot(model, which = 2)
+plot(model, which = 3)
+plot(model, which = 5)
+# Reset to default plotting layout
+par(mfrow = c(1, 1))
+```
+
+The Residuals vs. Fitted plot shows some patterns indicating potential non-linearity or misspecifications in the model, as the residuals do not scatter randomly around the horizontal line.
+
+Similar to the Residuals vs. Fitted plot, Scale-Location indicates heteroscedasticity where variances of the residuals are unequal across the range of predictors, suggesting the presence of influential outliers or a need for transformation.
+
+Normal Q-Q plot shows some deviation from normality, especially in the tails, suggesting the presence of outliers or that the normal distribution assumption may not hold.
+
+Residuals vs Leverage plot helps to identify influential cases with high leverage. The absence of points beyond the Cook's distance threshold suggests that there are no unduly influential outliers severely impacting the model's fit.
+
+\newpage
+
+# Conclusion 
+
+The study illuminates the multifaceted influences on gun control attitudes within the United States, integrating both political and demographic variables. Consistent with existing research, political affiliation emerges as a potent predictor; individuals aligned with Democratic ideologies tend to support stricter gun laws, mirroring findings from Schaeffer @schaeffer_2023 and Paul @paul2023united. This relationship underscores the entrenched political polarization impacting gun control debates.
+
+Demographic factors, notably age and gender, significantly influence attitudes toward gun legislation. Older individuals and women show a greater propensity towards gun control, aligning with research by Adams (2017) which highlights demographic sensitivities to gun-related issues. The gender difference could be attributed to varying security concerns, a theory supported by Wolpert and Gimpel’s @ac13cf81-9e69-3d63-8702-a1a929bbbb84 work on demographic attitudes towards safety.
+
+Furthermore, the economic context of one's upbringing and current residence plays a crucial role. Individuals from higher wealth regions are more inclined to support gun control, a possible reflection of different experiences with law enforcement and crime, as suggested by Ndikum @ndikum2018perceptions. Conversely, those from rural backgrounds show lesser support, aligning with cultural norms of gun ownership prevalent in less urbanized areas.
+
+## Limitation
+
+The study is not without limitations. The analysis points to potential model misspecifications, as indicated by patterns in the residuals and the presence of heteroscedasticity. These issues suggest that further model refinement and exploration of non-linear relationships might be necessary.
+
+Additionally, the over-representation of certain demographics, particularly racial homogeneity, might skew the results, limiting the generalizability of the findings.
+
+## Future Work
+Future studies could improve by incorporating a more diverse participant pool and advanced stastistical approcah such as SLiMFinder @edwards2007slimfinder to better capture the nuanced views across different racial and ethnic groups. Also, employing advanced statistical techniques such as Neural Network or Random Forest @cheng2020examining, to address the potential non-linearity and heteroscedasticity observed could refine the understanding of how various factors influence gun control attitudes. This holistic approach would enhance the robustness of the conclusions and provide deeper insights into the sociocultural dynamics that govern public opinions on gun control.
+
+
+\newpage
+# Bibliography
